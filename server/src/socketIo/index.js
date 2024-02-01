@@ -1,24 +1,44 @@
 const { Server, Socket } = require('socket.io');
-const { verifyJwtToken } = require('./../services/token-service');
+const tokenService = require('./../services/token-service');
+const { getOneUser } = require('./../services/user-service');
+const { merge, get } = require('lodash');
+const jwt = require('jsonwebtoken');
+
 const onConnection = async (socket) => {
     try {
-        // const token = socket.handshake.auth?.token;
-        // get the token from headers
-        const token = socket.handshake.headers?.authorization?.split(' ')[1];
-        console.log(token);
-
-        socket.on('disconnect', () => {
-            console.log('user has disconnected 🚫.');
-            // console the socketid
-            console.log(socket.id);
+        
+        socket.on('disconnect', async () => {
+            socket.user.socketId = null;
+            const user = await socket.user.save({ validateBeforeSave: false });
+            
         });
+        console.log('connected');
     } catch (error) {
         socket.emit('error', error?.message || 'Something went wrong while connecting to the socket.');
     }
 };
 
-const initializeSocketIo = (io) => {
-    return io.on('connection', onConnection);
+const initializeSocketIo = async (io) => {
+    return io
+        .use(async function (socket, next) {
+            if (socket.handshake.headers?.authorization && socket.handshake.headers?.authorization) {
+                
+                try {
+                    const decoded = await tokenService.verifyJwtToken(socket.handshake.headers?.authorization);
+                    const user = await getOneUser({ id: decoded._id });
+                    user.socketId = socket.id;
+                    await user.save({ validateBeforeSave: false });
+                    socket.user = user;
+                    next();
+                } catch (error) {
+                    // console.log(error);
+                    return next(new Error('Authentication error'));
+                }
+            } else {
+                next(new Error('Authentication error'));
+            }
+        })
+        .on('connection', onConnection);
 };
 
 module.exports = { initializeSocketIo };

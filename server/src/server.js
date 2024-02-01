@@ -1,7 +1,8 @@
 const dotenv = require('dotenv');
+const { httpServer } = require('./app');
 dotenv.config({ path: `${__dirname}/config.env` });
 const { logger } = require('./logger');
-
+console.log(process.env.TWILIO_ACCOUNT_SID);
 process.on('uncaughtException', (err) => {
     console.log('ERROR LOG:', err.message);
     console.log('UncaughtException');
@@ -10,13 +11,12 @@ process.on('uncaughtException', (err) => {
     });
 });
 
-const { app, httpServer, io } = require('./app');
-require('./startup/db')();
-
 const PORT = process.env.PORT || 5000;
+
 const server = httpServer.listen(PORT, () => {
     logger.info(`API is listening in [${process.env.NODE_ENV}] on port ${PORT}`);
 });
+require('./startup/db')();
 
 process.on('unhandledRejection', (err) => {
     console.log('ERROR LOG:', err.message);
