@@ -10,11 +10,11 @@ process.on('uncaughtException', (err) => {
     });
 });
 
-const app = require('./app');
+const { app, httpServer, io } = require('./app');
 require('./startup/db')();
 
 const PORT = process.env.PORT || 5000;
-const server = app.listen(PORT, () => {
+const server = httpServer.listen(PORT, () => {
     logger.info(`API is listening in [${process.env.NODE_ENV}] on port ${PORT}`);
 });
 
