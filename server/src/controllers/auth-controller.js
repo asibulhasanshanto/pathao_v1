@@ -113,6 +113,10 @@ const driverLoginOTP = catchAsync(async (req, res, next) => {
         return next(new AppError('Invalid Phone number', 400));
     }
 
+    if (user.role !== 'driver') {
+        return next(new AppError('You are not a driver.', 400));
+    }
+
     const otp = otpService.generateOTP();
     // await otpService.sendOTP(phone, otp);
 
