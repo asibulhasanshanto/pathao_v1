@@ -19,6 +19,9 @@ const register = async (payload) => {
 
 const login = async (email, password) => {
     const user = await User.findOne({ email }).select('+password');
+    if (user.role === 'driver') {
+        throw new AppError('You are not allowed to login using email.', 401);
+    }
     const isMatch = await user?.correctPassword(password, user.password);
 
     if (!isMatch) {
@@ -28,9 +31,26 @@ const login = async (email, password) => {
     return user;
 };
 
+const driverLogin = async (phone) => {
+    const user = await User.findOne({ phone });
+    if (!user) {
+        throw new AppError('Phone number is not registered.', 401);
+    }
+
+    if (user.role === 'rider') {
+        throw new AppError('You are not allowed to login using phone number.', 401);
+    }
+
+    return user;
+};
+
 const updatePassword = async (currentUserId, passwordCurrent, password) => {
     // 1) Get current logged in user
     const user = await userService.getOneUser({ _id: currentUserId }).select('+password');
+
+    if (user.role === 'driver') {
+        throw new AppError('You are not allowed to change password.', 401);
+    }
 
     // 2) Check if current password is correct
     const isMatch = await user.correctPassword(passwordCurrent, user.password);
@@ -47,4 +67,5 @@ module.exports = {
     register,
     login,
     updatePassword,
+    driverLogin,
 };
