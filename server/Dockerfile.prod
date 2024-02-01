@@ -4,7 +4,7 @@ WORKDIR /server
 COPY package.json .
 COPY yarn.lock .
 
-RUN yarn --only=prod
+RUN npm install
 
 COPY . .
 

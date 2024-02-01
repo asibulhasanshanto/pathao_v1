@@ -5,7 +5,7 @@
     "license": "MIT",
     "scripts": {
         "dev": "NODE_ENV=development nodemon src/server.js",
-        "prod": "NODE_ENV=production node src/server.js"
+        "prod": "NODE_ENV=production nodemon src/server.js"
     },
     "devDependencies": {
         "jest": "27",
@@ -32,6 +32,7 @@
         "multer": "^1.4.5-lts.1",
         "nodemailer": "^6.7.5",
         "streamifier": "^0.1.1",
+        "winston": "^3.11.0",
         "xss-clean": "^0.1.1"
     }
 }
