@@ -1,0 +1,30 @@
+version: "3.8"
+
+services:
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - pathao_v1:/data/db
+
+  server:
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./server
+    container_name: server
+    restart: always
+    ports:
+      - "4000:4000"
+    env_file:
+      - ./server/src/config.env
+    volumes:
+      - ./server:/server
+      - /server/node_modules
+    depends_on:
+      - mongodb
+
+volumes:
+  pathao_v1:
