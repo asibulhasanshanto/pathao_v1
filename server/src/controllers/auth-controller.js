@@ -22,24 +22,34 @@ const register = catchAsync(async (req, res, next) => {
     const user = await authService.register(req.body);
     // remove the key and value password from the user object
     delete user.password;
-
+    var data = {};
     if (user.role === 'driver') {
-        res.status(201).json({
-            status: 'success',
-            data: {
-                user,
+        data = {
+            user: {
+                id: user._id,
+                name: user.name,
+                phone: user.phone,
+                role: user.role,
             },
-        });
+        };
     } else {
         const token = tokenService.generateJwtToken({ id: user._id });
-        res.status(201).json({
-            status: 'success',
-            data: {
-                user,
-                token,
+        data = {
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                phone: user.phone,
+                role: user.role,
             },
-        });
+            token,
+        };
     }
+
+    res.status(201).json({
+        status: 'success',
+        data,
+    });
 });
 
 /**
@@ -57,7 +67,19 @@ const login = catchAsync(async (req, res, next) => {
     const user = await authService.login(email, password);
     const token = tokenService.generateJwtToken({ id: user._id });
 
-    res.status(200).json(token);
+    res.status(200).json({
+        status: 'success',
+        data: {
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                phone: user.phone,
+                role: user.role,
+            },
+            token,
+        },
+    });
 });
 
 const updatePassword = catchAsync(async (req, res, next) => {
@@ -128,7 +150,12 @@ const driverLogin = catchAsync(async (req, res, next) => {
     res.status(200).json({
         status: 'success',
         data: {
-            user,
+            user: {
+                id: user._id,
+                name: user.name,
+                phone: user.phone,
+                role: user.role,
+            },
             token,
         },
     });
