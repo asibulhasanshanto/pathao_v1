@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 const { Schema, model } = mongoose;
 const Joi = require('joi');
 
-
 const tripSchema = new Schema(
     {
         driver: {
@@ -80,7 +79,17 @@ const tripSchema = new Schema(
 tripSchema.index({ origin: '2dsphere' });
 tripSchema.index({ destination: '2dsphere' });
 
-const validateTrip = (trip)=>{
+// populate the driver and rider fields
+tripSchema.pre(/^find/, function (next) {
+    this.populate({
+        path: 'driver',
+    }).populate({
+        path: 'rider',
+    });
+    next();
+});
+
+const validateTrip = (trip) => {
     const schema = Joi.object({
         driver: Joi.string(),
         rider: Joi.string(),
@@ -96,17 +105,17 @@ const validateTrip = (trip)=>{
         }).required(),
     });
     return schema.validate(trip);
-}
-const validateUpdateTripStatus = (trip)=>{
+};
+const validateUpdateTripStatus = (trip) => {
     const schema = Joi.object({
         status: Joi.string().valid('accepted', 'started', 'completed', 'canceled').required(),
     });
     return schema.validate(trip);
-}
+};
 const Trip = model('Trip', tripSchema);
 
 module.exports = {
     Trip,
     validateTrip,
-    validateUpdateTripStatus
+    validateUpdateTripStatus,
 };

@@ -1,8 +1,9 @@
 const AppError = require('../utils/app-error');
 const { validateTrip } = require('../models/trip-model');
+const { getOneUser } = require('../services/user-service');
 const { findNearbyDrivers } = require('../services/driver-info-service');
-const { createNewTrip } = require('../services/trip-service');
-const { rideRequestToDriver } = require('./../socketIo/handlers/driver-handler');
+const { createNewTrip, getOneTrip } = require('../services/trip-service');
+const { rideRequestToDriver, rideCancelMessageToDriver } = require('./../socketIo/handlers/driver-handler');
 const { sendTripUpdateToRider } = require('./../socketIo/handlers/rider-handler');
 const catchAsync = require('../utils/catch-async');
 
@@ -40,6 +41,33 @@ const createRideRequest = catchAsync(async (req, res, next) => {
     });
 });
 
+const cancelRideRequest = catchAsync(async (req, res, next) => {
+    const tripId = req.params.trip_id;
+    const trip = await getOneTrip({ id: tripId });
+    if (!trip) return next(new AppError('Trip not found', 404));
+
+    if (trip.rider.toString() !== req.user.id)
+        return next(new AppError('You are not authorized to cancel this trip', 403));
+
+    if (trip.status === 'canceled' || trip.status === 'completed' || trip.status === 'started')
+        return next(new AppError('This trip has already been completed or started or canceled', 400));
+
+    trip.status = 'canceled';
+    await trip.save();
+
+    const driver = await getOneUser({ id: trip.driver });
+    const io = req.app.get('io');
+    if (driver.socketId) {
+        rideCancelMessageToDriver(io, trip, driver.socketId);
+    }
+    res.status(200).json({
+        status: 'success',
+        data: {
+            trip,
+        },
+    });
+});
 module.exports = {
     createRideRequest,
+    cancelRideRequest,
 };

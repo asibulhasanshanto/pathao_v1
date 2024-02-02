@@ -37,6 +37,13 @@ var rideRequestToDriver = function (io,trip, driverSocketid) {
     }
 };
 
-module.exports = { driverHandler, rideRequestToDriver };
+var rideCancelMessageToDriver = function (io, trip, driverSocketid) {
+    try {
+        io.to(driverSocketid).emit('rideCancel', trip);
+    } catch (error) {
+        console.log(error);
+    }
+}
+module.exports = { driverHandler, rideRequestToDriver, rideCancelMessageToDriver };
 
 //25.498384, 88.964789

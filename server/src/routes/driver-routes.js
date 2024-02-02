@@ -7,4 +7,5 @@ const router = express.Router();
 router.use(protect);
 router.patch('/trip_status/:trip_id', restrictTo('driver'), driverController.updateTripStatus);
 
+
 module.exports = router;

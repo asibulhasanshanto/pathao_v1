@@ -22,10 +22,14 @@ const deleteOneTrip = (filter) => {
     return Trip.findOneAndDelete(filter);
 };
 
+const getFilteredTrips = (filter) => {
+    return Trip.find(filter);
+};
 module.exports = {
     getAllTrips,
     getOneTrip,
     createNewTrip,
     updateOneTrip,
     deleteOneTrip,
+    getFilteredTrips,
 };
