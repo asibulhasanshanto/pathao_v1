@@ -233,3 +233,9 @@ GET api/v1/trips/:trip_id
 ```
 
 Here, if the user is the rider of the trip or the driver of the trip, he can see the details of the trip.
+
+# Video
+
+Here is the video description of the solution:
+
+[![Watch the video](https://img.youtube.com/vi/3J6z3YX9zQs/maxresdefault.jpg)](https://youtu.be/x_9tnm_e7wQ)
