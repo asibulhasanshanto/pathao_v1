@@ -11,6 +11,10 @@ const createRideRequest = catchAsync(async (req, res, next) => {
     const { error } = validateTrip(req.body);
     if (error) return next(new AppError(error.details[0].message, 400));
 
+    // check if the rider has a trip that is not completed or not cancelled
+    const unfinishedTrip = await getOneTrip({ rider: req.user.id, status: { $nin: ['completed', 'canceled'] } });
+    if (unfinishedTrip) return next(new AppError('You have an unfinished trip', 400));
+
     const nearbyDrivers = await findNearbyDrivers(req.body.origin.coordinates);
     if (nearbyDrivers.length === 0) return next(new AppError('No drivers found nearby', 404));
 
@@ -43,10 +47,11 @@ const createRideRequest = catchAsync(async (req, res, next) => {
 
 const cancelRideRequest = catchAsync(async (req, res, next) => {
     const tripId = req.params.trip_id;
-    const trip = await getOneTrip({ id: tripId });
+    const trip = await getOneTrip({ _id: tripId });
     if (!trip) return next(new AppError('Trip not found', 404));
 
-    if (trip.rider.toString() !== req.user.id)
+    // console.log(trip);
+    if (trip.rider._id.toString() !== req.user.id)
         return next(new AppError('You are not authorized to cancel this trip', 403));
 
     if (trip.status === 'canceled' || trip.status === 'completed' || trip.status === 'started')
@@ -55,9 +60,9 @@ const cancelRideRequest = catchAsync(async (req, res, next) => {
     trip.status = 'canceled';
     await trip.save();
 
-    const driver = await getOneUser({ id: trip.driver });
+    const driver = await getOneUser({ id: trip.driver?._id });
     const io = req.app.get('io');
-    if (driver.socketId) {
+    if (driver?.socketId) {
         rideCancelMessageToDriver(io, trip, driver.socketId);
     }
     res.status(200).json({
