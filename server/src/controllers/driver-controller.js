@@ -154,9 +154,9 @@ const updateTripStatus = catchAsync(async (req, res, next) => {
                 },
             });
         }
+    } else {
+        return next(new AppError('Invalid status', 400));
     }
-
-    return next(new AppError('Invalid status', 400));
 });
 
 const getMyTrips = catchAsync(async (req, res, next) => {
