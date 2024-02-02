@@ -23,12 +23,13 @@ const authenticate = async function (socket, next) {
                     driverInfo = await createNewDriverInfo({
                         user: user.id,
                         active: true,
+                        currentLocation: { type: 'Point', coordinates: [0, 0] },
                     });
                 }
             }
             next();
         } catch (error) {
-            // console.log(error);
+            console.log(error);
             return next(new Error('Authentication error'));
         }
     } else {

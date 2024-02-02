@@ -6,13 +6,19 @@ const driverHandler = (socket) => {
             if (socket.user.role !== 'driver') {
                 return socket.emit('error', 'You are not a driver.');
             } else {
-                const latLang = location.location.split(',');
+                const [lan, lat] = location.location.split(',');
                 // console.log(latLang);
                 const driverInfo = await getOneDriverInfo({ user: socket.user._id });
                 if (driverInfo) {
-                    await updateOneDriverInfo({ user: socket.user._id }, { currentLocation: latLang });
+                    await updateOneDriverInfo(
+                        { user: socket.user._id },
+                        { currentLocation: { type: 'Point', coordinates: [Number(lat), Number(lan)] } }
+                    );
                 } else {
-                    await createNewDriverInfo({ user: socket.user._id, currentLocation: latLang });
+                    await createNewDriverInfo({
+                        user: socket.user._id,
+                        currentLocation: { type: 'Point', coordinates: [Number(lat), Number(lan)] },
+                    });
                 }
             }
             // console.log('driverLocation', location);

@@ -14,16 +14,15 @@ const driverInfoSchema = new Schema(
         },
         available: {
             type: Boolean,
-            default: false,
+            default: true,
         },
         currentLocation: {
             type: {
                 type: String,
                 enum: ['Point'],
+                default: 'Point',
             },
-            coordinates: {
-                type: [Number],
-            },
+            coordinates: [Number],
         },
     },
     {
