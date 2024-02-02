@@ -1,12 +1,13 @@
 const mongoose = require('mongoose');
 const { Schema, model } = mongoose;
+const Joi = require('joi');
+
 
 const tripSchema = new Schema(
     {
         driver: {
             type: Schema.Types.ObjectId,
             ref: 'User',
-            required: true,
         },
         rider: {
             type: Schema.Types.ObjectId,
@@ -63,3 +64,31 @@ const tripSchema = new Schema(
         timestamps: true,
     }
 );
+
+tripSchema.index({ origin: '2dsphere' });
+tripSchema.index({ destination: '2dsphere' });
+
+const validateTrip = (trip)=>{
+    const schema = Joi.object({
+        driver: Joi.string(),
+        rider: Joi.string(),
+        origin: Joi.object({
+            coordinates: Joi.array().items(Joi.number()).required(),
+            address: Joi.string().required(),
+            type: Joi.string().valid('Point').required(),
+        }).required(),
+        destination: Joi.object({
+            coordinates: Joi.array().items(Joi.number()).required(),
+            address: Joi.string().required(),
+            type: Joi.string().valid('Point').required(),
+        }).required(),
+    });
+    return schema.validate(trip);
+}
+
+const Trip = model('Trip', tripSchema);
+
+module.exports = {
+    Trip,
+    validateTrip
+};
