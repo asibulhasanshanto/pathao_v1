@@ -29,7 +29,7 @@ const driverHandler = (socket) => {
         }
     });
 };
-var rideRequestToDriver = function (trip, driverSocketid, io) {
+var rideRequestToDriver = function (io,trip, driverSocketid) {
     try {
         io.to(driverSocketid).emit('rideRequest', trip);
     } catch (error) {

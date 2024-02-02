@@ -3,6 +3,7 @@ const { validateTrip } = require('../models/trip-model');
 const { findNearbyDrivers } = require('../services/driver-info-service');
 const { createNewTrip } = require('../services/trip-service');
 const { rideRequestToDriver } = require('./../socketIo/handlers/driver-handler');
+const { sendTripUpdateToRider } = require('./../socketIo/handlers/rider-handler');
 const catchAsync = require('../utils/catch-async');
 
 const createRideRequest = catchAsync(async (req, res, next) => {
@@ -17,14 +18,20 @@ const createRideRequest = catchAsync(async (req, res, next) => {
         rider: req.user.id,
         origin: req.body.origin,
         destination: req.body.destination,
+        driver: nearbyDrivers[0].user._id,
     });
 
     // send the request to the driver
     const io = req.app.get('io');
-    // console.log(io);
-    rideRequestToDriver(trip, nearbyDrivers[0].user.socketId,io);
+    rideRequestToDriver(io, trip, nearbyDrivers[0].user.socketId);
 
-    // console.log(trip, nearbyDrivers);
+    // send a finding driver message to the rider
+    if (req.user.socketId) {
+        sendTripUpdateToRider(io, req.user.socketId, {
+            message: 'Finding a driver',
+        });
+    }
+
     res.status(201).json({
         status: 'success',
         data: {

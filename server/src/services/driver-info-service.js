@@ -39,7 +39,7 @@ const findNearbyDrivers = async (origin, rejectedDrivers = []) => {
         {
             $match: {
                 // users id shoudl not be present in rejectedDrivers
-                user: { $nin: rejectedDrivers.map((userId) => new mongoose.Types.ObjectId(userId)) },
+                user: { $nin: rejectedDrivers.map((driver) => new mongoose.Types.ObjectId(driver?.driver)) },
                 available: true,
                 active: true,
             },

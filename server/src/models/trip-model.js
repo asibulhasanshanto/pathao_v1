@@ -59,6 +59,18 @@ const tripSchema = new Schema(
                 },
             },
         ],
+        acceptedAt: {
+            type: Date,
+        },
+        startedAt: {
+            type: Date,
+        },
+        completedAt: {
+            type: Date,
+        },
+        canceledAt: {
+            type: Date,
+        },
     },
     {
         timestamps: true,
@@ -85,10 +97,16 @@ const validateTrip = (trip)=>{
     });
     return schema.validate(trip);
 }
-
+const validateUpdateTripStatus = (trip)=>{
+    const schema = Joi.object({
+        status: Joi.string().valid('accepted', 'started', 'completed', 'canceled').required(),
+    });
+    return schema.validate(trip);
+}
 const Trip = model('Trip', tripSchema);
 
 module.exports = {
     Trip,
-    validateTrip
+    validateTrip,
+    validateUpdateTripStatus
 };
