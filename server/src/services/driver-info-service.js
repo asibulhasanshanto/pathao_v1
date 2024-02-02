@@ -5,7 +5,7 @@ const getAllDriverInfos = () => {
 };
 
 const getOneDriverInfo = (filter) => {
-    return Driver;
+    return DriverInfo.findOne(filter);
 };
 
 const createNewDriverInfo = (payload) => {
@@ -15,11 +15,11 @@ const createNewDriverInfo = (payload) => {
 };
 
 const updateOneDriverInfo = (filter, payload) => {
-    return DriverInfo.findOneAndUpdate;
+    return DriverInfo.findOneAndUpdate(filter, payload, { new: true });
 };
 
 const deleteOneDriverInfo = (filter) => {
-    return DriverInfo.findOneAndDelete;
+    return DriverInfo.findOneAndDelete(filter);
 };
 
 module.exports = {

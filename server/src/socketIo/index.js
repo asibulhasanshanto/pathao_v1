@@ -1,6 +1,6 @@
 const tokenService = require('./../services/token-service');
-const { getOneUser } = require('./../services/user-service');
 const { driverHandler } = require('./handlers/driver-handler');
+const { updateOneDriverInfo } = require('./../services/driver-info-service');
 const onConnection = async (socket) => {
     try {
         driverHandler(socket);
@@ -9,10 +9,13 @@ const onConnection = async (socket) => {
             user.socketId = null;
             user = await user.save({ validateBeforeSave: false });
             socket.user = null;
-            console.log(socket.user);
+            // console.log(socket.user);
 
-            // disconnect the user from the socket
-            // socket.disconnect();
+            // make the driver offline
+            if (user.role === 'driver') {
+                var driverInfo = await updateOneDriverInfo({ user: user.id }, { active: false });
+                // console.log(driverInfo);
+            }
         });
     } catch (error) {
         socket.emit('error', error?.message || 'Something went wrong while connecting to the socket.');

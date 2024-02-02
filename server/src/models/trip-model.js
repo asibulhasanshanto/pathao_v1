@@ -17,6 +17,7 @@ const tripSchema = new Schema(
             type: {
                 type: String,
                 enum: ['Point'],
+                default: 'Point',
                 required: true,
             },
             coordinates: {
@@ -32,6 +33,7 @@ const tripSchema = new Schema(
             type: {
                 type: String,
                 enum: ['Point'],
+                default: 'Point',
                 required: true,
             },
             coordinates: {

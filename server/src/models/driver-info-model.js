@@ -20,11 +20,9 @@ const driverInfoSchema = new Schema(
             type: {
                 type: String,
                 enum: ['Point'],
-                required: true,
             },
             coordinates: {
                 type: [Number],
-                required: true,
             },
         },
     },
@@ -32,7 +30,7 @@ const driverInfoSchema = new Schema(
         timestamps: true,
     }
 );
-
+driverInfoSchema.index({ currentLocation: '2dsphere' });
 const DriverInfo = model('DriverInfo', driverInfoSchema);
 
 module.exports = {
