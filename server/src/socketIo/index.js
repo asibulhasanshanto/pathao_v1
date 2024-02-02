@@ -18,6 +18,7 @@ const onConnection = async (socket) => {
             }
         });
     } catch (error) {
+        console.log(error);
         socket.emit('error', error?.message || 'Something went wrong while connecting to the socket.');
     }
 };

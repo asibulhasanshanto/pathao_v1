@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const { DriverInfo } = require('../models/driver-info-model');
 
 const getAllDriverInfos = () => {
@@ -22,7 +23,7 @@ const deleteOneDriverInfo = (filter) => {
     return DriverInfo.findOneAndDelete(filter);
 };
 
-const findNearbyDrivers = async (origin) => {
+const findNearbyDrivers = async (origin, rejectedDrivers = []) => {
     const [lan, lat] = origin;
 
     const nearbyDrivers = await DriverInfo.aggregate([
@@ -32,6 +33,15 @@ const findNearbyDrivers = async (origin) => {
                 distanceField: 'distance',
                 maxDistance: 5000,
                 spherical: true,
+            },
+        },
+        // filter out the rejected drivers
+        {
+            $match: {
+                // users id shoudl not be present in rejectedDrivers
+                user: { $nin: rejectedDrivers.map((userId) => new mongoose.Types.ObjectId(userId)) },
+                available: true,
+                active: true,
             },
         },
         // populate user info
@@ -51,7 +61,7 @@ const findNearbyDrivers = async (origin) => {
                 'user.__v': 0,
                 'user.createdAt': 0,
                 'user.updatedAt': 0,
-                'user.socketId': 0,
+                // 'user.socketId': 0,
                 createdAt: 0,
                 updatedAt: 0,
                 __v: 0,
@@ -60,6 +70,11 @@ const findNearbyDrivers = async (origin) => {
 
         // order by desc
         { $sort: { distance: 1 } },
+
+        // get the first one only
+        {
+            $limit: 1,
+        },
     ]);
 
     return nearbyDrivers;

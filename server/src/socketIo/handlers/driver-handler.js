@@ -1,4 +1,5 @@
 const { getOneDriverInfo, createNewDriverInfo, updateOneDriverInfo } = require('../../services/driver-info-service');
+
 const driverHandler = (socket) => {
     socket.on('driverLocationPing', async (location) => {
         try {
@@ -28,7 +29,14 @@ const driverHandler = (socket) => {
         }
     });
 };
+var rideRequestToDriver = function (trip, driverSocketid, io) {
+    try {
+        io.to(driverSocketid).emit('rideRequest', trip);
+    } catch (error) {
+        console.log(error);
+    }
+};
 
-module.exports = { driverHandler };
+module.exports = { driverHandler, rideRequestToDriver };
 
 //25.498384, 88.964789

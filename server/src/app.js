@@ -13,12 +13,13 @@ const io = new Server(httpServer, {
         credentials: true,
     },
 });
-app.set('io', io);
 
+app.set('io', io);
 require('./startup/global-middleware')(app);
 require('./startup/routes')(app);
 
 io.use(authenticate);
 initializeSocketIo(io);
+
 
 module.exports = { app, httpServer, io };

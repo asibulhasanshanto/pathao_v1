@@ -2,7 +2,7 @@ const dotenv = require('dotenv');
 const { httpServer } = require('./app');
 dotenv.config({ path: `${__dirname}/config.env` });
 const { logger } = require('./logger');
-console.log(process.env.TWILIO_ACCOUNT_SID);
+
 process.on('uncaughtException', (err) => {
     console.log('ERROR LOG:', err.message);
     console.log('UncaughtException');
